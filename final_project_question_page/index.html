@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindTrack EEG Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+    .left, .right {
+      flex: 1;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+    .left {
+      background: #34495e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .right {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-left: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 30px;
+      text-align: center;
+      animation: slideIn 1s ease-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    h2 {
+      font-size: 2.5rem;
+      color: #ffcc00;
+      margin-bottom: 20px;
+    }
+    .instructions {
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      text-align: left;
+      width: 100%;
+    }
+    .instructions ul {
+      list-style: none;
+      padding: 0;
+    }
+    .instructions ul li {
+      background: rgba(0,0,0,0.3);
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+      transition: background 0.3s ease;
+    }
+    .instructions ul li:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .instructions ul li::before {
+      content: "🧠";
+      margin-right: 10px;
+    }
+    .btn {
+      padding: 15px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #f9ca24, #f0932b);
+      color: #2d3436;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .btn:hover {
+      transform: scale(1.1);
+    }
+    canvas {
+      background: #2c3e50;
+      border: 2px solid #ffcc00;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="left">
+    <h2>Live EEG Bands</h2>
+    <canvas id="eegChart"></canvas>
+  </div>
+
+  <div class="right">
+    <h2>🚀 Welcome to MindTrack!</h2>
+    <div class="instructions">
+      <ul>
+        <li>Relax and sit comfortably before starting.</li>
+        <li>Focus your attention fully during the test.</li>
+        <li>Avoid any distractions (mobile, noise).</li>
+        <li>Total time to complete the test is 30s.</li>
+        <li>Ready? Click Start when you are fully prepared!</li>
+      </ul>
+    </div>
+    <button class="btn" id="startBtn">Start Test</button>
+  </div>
+
+  <script>
+    const socket = new WebSocket("ws://192.168.239.203:81");
+
+    const labels = [];
+    const maxPoints = 20;
+
+    let deltaArray = [], thetaArray = [], alphaArray = [], betaArray = [], gammaArray = [];
+
+    const chart = new Chart(document.getElementById("eegChart"), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Delta', borderColor: 'blue', data: [], fill: false },
+          { label: 'Theta', borderColor: 'purple', data: [], fill: false },
+          { label: 'Alpha', borderColor: 'green', data: [], fill: false },
+          { label: 'Beta', borderColor: 'orange', data: [], fill: false },
+          { label: 'Gamma', borderColor: 'red', data: [], fill: false }
+        ]
+      },
+      options: {
+        animation: { duration: 1000, easing: 'easeInOutQuart' },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    socket.onmessage = function(event) {
+      const eeg = JSON.parse(event.data);
+
+      deltaArray.push(eeg.delta);
+      thetaArray.push(eeg.theta);
+      alphaArray.push(eeg.alpha);
+      betaArray.push(eeg.beta);
+      gammaArray.push(eeg.gamma);
+
+      if (labels.length >= maxPoints) {
+        labels.shift();
+        chart.data.datasets.forEach(ds => ds.data.shift());
+      }
+
+      const timestamp = new Date().toLocaleTimeString();
+      labels.push(timestamp);
+      chart.data.datasets[0].data.push(eeg.delta);
+      chart.data.datasets[1].data.push(eeg.theta);
+      chart.data.datasets[2].data.push(eeg.alpha);
+      chart.data.datasets[3].data.push(eeg.beta);
+      chart.data.datasets[4].data.push(eeg.gamma);
+      chart.update();
+    };
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      const eegData = {
+        deltaArray,
+        thetaArray,
+        alphaArray,
+        betaArray,
+        gammaArray
+      };
+      sessionStorage.setItem('eegData', JSON.stringify(eegData));
+      window.location.href = "test.html"; // Redirect to test page
+    });
+  </script>
+
+</body>
+</html>
