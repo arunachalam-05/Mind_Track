@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>History</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #f9ca24;
+      margin-bottom: 30px;
+    }
+
+    .record {
+      background: #34495e;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .record p {
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .back button {
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      background: #f0932b;
+      color: #2d3436;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="back"><a href="profile.html"><button>← Back</button></a></div>
+  <h2>Test History</h2>
+
+  <div id="historyContainer">
+    <!-- Test records will be inserted here dynamically -->
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const userId = sessionStorage.getItem('userId');
+      
+      console.log("User ID from sessionStorage:", userId);
+
+      if (userId) {
+        fetch(`http://localhost:8080/api/eeg/history/${userId}`)
+          .then(response => response.json())
+          .then(data => {
+            const container = document.getElementById('historyContainer');
+            data.forEach(record => {
+              const div = document.createElement('div');
+              div.className = 'record';
+              div.innerHTML = `
+                <p><strong>Mental Fatigue:</strong> ${record.mentalFatigue}</p>
+                <p><strong>Memory Retention:</strong> ${record.memoryRetention}</p>
+                <p><strong>Focus Attention:</strong> ${record.focusAttention}</p>
+                <p><strong>Stress Relaxation:</strong> ${record.stressRelaxation}</p>
+                <p><strong>Cognitive Load:</strong> ${record.cognitiveLoad}</p>
+                <p><strong>Suggestion:</strong> ${record.suggestion}</p>
+              `;
+              container.appendChild(div);
+            });
+          })
+          .catch(error => {
+            console.error("Error loading history:", error);
+          });
+      }
+    });
+  </script>
+</body>
+</html>

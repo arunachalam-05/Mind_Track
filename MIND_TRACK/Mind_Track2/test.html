@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MINDTRACK - Brain Challenge</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px;
+      overflow: hidden;
+      position: relative;
+    }
+    .timer {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 1.5rem;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 10px #ffcc00;
+    }
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #f9ca24;
+      text-align: center;
+    }
+    .question-image {
+      width: 350px;
+      height: auto;
+      margin-bottom: 20px;
+      border: 3px solid #ffcc00;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #ffcc00;
+    }
+    .options {
+      margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .option {
+      background: #0984e3;
+      border: 3px solid transparent;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .option img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .option:hover {
+      background-color: #74b9ff;
+    }
+    .option.selected {
+      border-color: #00cec9;
+      background-color: #00cec9;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #e17055;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #d35400;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="timer" id="timer">30s</div>
+
+  <h2>🧠 Select the correct cube to complete the pattern:</h2>
+
+  <img src="question.png" alt="Cube Pattern Question" class="question-image" />
+
+  <div class="options">
+    <div class="option" onclick="selectOption('A')"><img src="optionA.png" /></div>
+    <div class="option" onclick="selectOption('B')"><img src="optionB.png" /></div>
+    <div class="option" onclick="selectOption('C')"><img src="optionC.png" /></div>
+    <div class="option" onclick="selectOption('D')"><img src="optionD.png" /></div>
+    <div class="option" onclick="selectOption('E')"><img src="optionE.png" /></div>
+    <div class="option" onclick="selectOption('F')"><img src="optionF.png" /></div>
+  </div>
+
+  <button class="btn" onclick="submitTest()">Submit Test</button>
+
+  <script>
+    let selectedOption = '';
+    let timeLeft = 40;
+    let timerId;
+
+    const userId = sessionStorage.getItem('userId');
+
+        // Check if the userId exists and log it to the console
+        if (userId) {
+            console.log("User ID from sessionStorage:", userId);
+        } else {
+            console.log("No User ID found in sessionStorage.");
+        }
+
+
+    window.onload = function() {
+      timerId = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      timeLeft--;
+      document.getElementById('timer').textContent = timeLeft + "s";
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        submitTest();
+      }
+    }
+
+    function selectOption(option) {
+      selectedOption = option;
+      document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+    }
+
+    function average(arr) {
+      return arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
+    }
+
+    function submitTest() {
+      clearInterval(timerId);
+
+      const eegData = JSON.parse(sessionStorage.getItem('eegData')) || {
+        deltaArray: [], thetaArray: [], alphaArray: [], betaArray: [], gammaArray: []
+      };
+
+      const averagedData = {
+        delta: average(eegData.deltaArray),
+        theta: average(eegData.thetaArray),
+        alpha: average(eegData.alphaArray),
+        beta: average(eegData.betaArray),
+        gamma: average(eegData.gammaArray),
+        answer: selectedOption || 'No Answer'
+      };
+
+      console.log("Submitting EEG + Answer:", averagedData);
+
+      fetch('http://localhost:8080/api/eeg/submitTest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(averagedData)
+      })
+      .then(res => res.json())
+      .then(data => window.location.href = "successTest.html")
+      .catch(err => window.location.href = "successTest.html");
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

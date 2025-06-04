@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #2c3e50;
+      color: #ecf0f1;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .profile-card {
+      background: #34495e;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .profile-card h2 {
+      color: #f9ca24;
+      margin-bottom: 20px;
+    }
+
+    .profile-card p {
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .btn {
+      position: absolute;
+      top: 20px;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      background: #f0932b;
+      color: #2d3436;
+      text-decoration: none;
+      z-index: 2;
+    }
+
+    .back-btn {
+      left: 20px;
+    }
+
+    .history-btn {
+      right: 20px;
+      background: #00cec9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back button -->
+  <a href="checking.html" class="btn back-btn">← Back</a>
+
+  <!-- History button -->
+  <a href="history.html" class="btn history-btn">History</a>
+
+  <!-- Profile card -->
+  <div class="profile-card">
+    <h2>User Profile</h2>
+    <p><strong>Name:</strong> <span id="name">Loading...</span></p>
+    <p><strong>Username:</strong> <span id="userName">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="email">Loading...</span></p>    
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const userId = sessionStorage.getItem('userId');
+
+      if (userId) {
+        console.log("User ID from sessionStorage:", userId);
+
+        fetch(`http://localhost:8080/api/auth/users/${userId}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch user data");
+            }
+            return response.json();
+          })
+          .then(user => {
+            document.getElementById('name').textContent = user.name;
+            document.getElementById('userName').textContent = user.userName;
+            document.getElementById('email').textContent = user.email;
+          })
+          .catch(error => {
+            console.error("❌ Error fetching user data:", error);
+          });
+
+      } else {
+        console.log("No User ID found in sessionStorage.");
+      }
+    });
+  </script>
+
+</body>
+</html>

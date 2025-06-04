@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTrack - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: url('image.png') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+        }
+        .logo {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 200px;
+            height: auto;
+        }
+        .navbar {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            margin: 0 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            background: linear-gradient(90deg, #00ffff, #00ccff);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.8);
+            transition: 0.3s ease-in-out;
+        }
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 25px rgba(0, 255, 255, 1);
+        }
+        .content {
+            max-width: 900px;
+            color: #fff;
+            text-shadow: 0px 0px 20px rgba(0, 255, 255, 1);
+        }
+        .content h1 {
+            font-size: 80px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 4px;
+            animation: neon-glow 1.5s infinite alternate;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #00ffff, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .content p {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+        @keyframes neon-glow {
+            0% { text-shadow: 0px 0px 20px rgba(0, 255, 255, 0.7); }
+            100% { text-shadow: 0px 0px 40px rgba(0, 255, 255, 1); }
+        }
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 14px;
+            color: #00ffff;
+            font-weight: bold;
+        }
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-box {
+            width: 420px;
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 0 35px rgba(0, 255, 255, 1);
+            text-align: center;
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(0, 255, 255, 0.9);
+        }
+        .popup-box h2 {
+            font-size: 30px;
+            color: #00ffff;
+            margin-bottom: 25px;
+            text-shadow: 0px 0px 20px rgba(0, 255, 255, 1);
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-size: 18px;
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.5);
+            transition: 0.3s ease-in-out;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: linear-gradient(90deg, #00ffff, #00ccff);
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.9);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="logo.png" alt="MindTrack Logo" class="logo">
+
+    <div class="content">
+        <h1>WELCOME TO MINDTRACK</h1>
+        <p>Experience the future of mental health tracking. AI-powered insights that analyze, track, and understand your mind like never before!</p>
+    </div>
+
+    <div class="navbar">
+        <button class="nav-btn" onclick="showPopup('login-popup')">Login</button>
+        <button class="nav-btn" onclick="showPopup('register-popup')">Register</button>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 MindTrack. All Rights Reserved.
+    </div>
+
+    <!-- Login Page -->
+    <div class="popup-container" id="login-popup">
+        <div class="popup-box">
+            <h2>MindTrack Login</h2>
+            <div class="input-group">
+                <input type="text" placeholder="Username/email" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password" autocomplete="new-password">
+            </div>
+            <button class="btn">Login</button>
+        </div>
+    </div>
+
+    <!-- Registration Page -->
+    <div class="popup-container" id="register-popup">
+        <div class="popup-box">
+            <h2>MindTrack Registration</h2>
+            <div class="input-group">
+                <input type="text" placeholder="Name">
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <input type="number" placeholder="Mobile Number">
+            </div>
+            <div class="input-group">
+                <input type="email" placeholder="Email">
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password">
+            </div>
+        
+            <div class="input-group">
+                <input type="password" placeholder="Confirm Password">
+            </div>
+            <button class="btn">Register</button>
+        </div>
+    </div>
+
+    <script>
+                    function showPopup(id) {
+                document.getElementById(id).style.display = 'flex';
+            }
+
+            function hidePopup(id) {
+                document.getElementById(id).style.display = 'none';
+            }
+
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('popup-container')) {
+                    hidePopup(event.target.id);
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    hidePopup('login-popup');
+                    hidePopup('register-popup');
+                }
+            });
+            async function sendRequest(url, data, isLogin=false) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data),
+            credentials: 'include'  // Important for CORS handling if using cookies
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Request failed');
+        }
+
+        const result = await response.json();
+
+        // Check if the user was not found or password is invalid
+        if (result.message && (result.message.toLowerCase() === 'user not found' || result.message.toLowerCase() === 'invalid password')) {
+            alert('Invalid credentials! Please check your username and password.');
+            return; // Stop execution, don't redirect
+        }
+
+        alert(result.message || 'Login successful!');
+
+        if (isLogin) {
+            sessionStorage.setItem('userId', result.id); // Store user ID for future use
+            console.log(result.id); // Log the user's ID to the console
+            window.location.href = 'checking.html'; // Redirect to checking page if login is successful
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+
+            document.querySelector('#login-popup .btn').addEventListener('click', function() {
+                const input = document.querySelector('#login-popup input[type="text"]').value;
+                const password = document.querySelector('#login-popup input[type="password"]').value;
+
+                if (!input || !password) {
+                    alert('Please enter username/email and password');
+                    return;
+                }
+
+                const isEmail = input.includes('@'); // Simple check to differentiate email from username
+                const requestData = isEmail ? { email: input, password } : { userName: input, password };
+
+                sendRequest('http://localhost:8080/api/auth/login', requestData, true);
+            });
+
+
+            document.querySelector('#register-popup .btn').addEventListener('click', function() {
+                const name = document.querySelector('#register-popup input[placeholder="Name"]').value;
+                const userName = document.querySelector('#register-popup input[placeholder="Username"]').value;
+                const mobileNumber = document.querySelector('#register-popup input[placeholder="Mobile Number"]').value;
+                const email = document.querySelector('#register-popup input[placeholder="Email"]').value;
+                const password = document.querySelector('#register-popup input[placeholder="Password"]').value;
+                const confirmPassword = document.querySelector('#register-popup input[placeholder="Confirm Password"]').value;
+                
+                if (!name || !userName || !email || !password || !confirmPassword) {
+                    alert('All fields are required');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                sendRequest('http://localhost:8080/api/auth/register', { name, userName, mobileNumber, email, password });
+            });
+
+    </script>
+
+</body>
+</html>

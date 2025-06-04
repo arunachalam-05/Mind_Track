@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 24px;
+            color: red;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .submit-btn:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h2>Test Page - Answer the question below within 1 minute</h2>
+
+    <!-- Question Prompt -->
+    <div class="question-container">
+        <p><strong>Question:</strong> Who is you Fav Person?</p>
+        <input type="text" id="answer" placeholder="Type your answer here" />
+    </div>
+
+    <!-- Timer -->
+    <div>
+        <span>Time Remaining: </span><span id="timer" class="timer">60</span> seconds
+    </div>
+
+    <!-- Submit Button -->
+    <button id="submitBtn" class="submit-btn" onclick="submitTestData()">Submit</button>
+
+    <script>
+        let timeRemaining = 60; // 1 minute timer
+        let eegData = []; // Initialize eegData array to store EEG values
+        const timerElement = document.getElementById("timer");
+        const submitButton = document.getElementById("submitBtn");
+
+        // Countdown Timer
+        const timerInterval = setInterval(function () {
+            timeRemaining--;
+            timerElement.textContent = timeRemaining;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+
+        function submitTestData() {
+    // Get the answer from the user
+    const answer = document.getElementById("answer").value;
+
+    // Stop collecting EEG data (stop filling the array)
+    clearInterval(dataCollectionInterval);
+
+    // Calculate averages of the EEG data
+    let deltaAvg = 0, thetaAvg = 0, alphaAvg = 0, betaAvg = 0, gammaAvg = 0;
+    eegData.forEach((eeg) => {
+        deltaAvg += eeg.delta;
+        thetaAvg += eeg.theta;
+        alphaAvg += eeg.alpha;
+        betaAvg += eeg.beta;
+        gammaAvg += eeg.gamma;
+    });
+
+    const dataCount = eegData.length;
+    deltaAvg /= dataCount;
+    thetaAvg /= dataCount;
+    alphaAvg /= dataCount;
+    betaAvg /= dataCount;
+    gammaAvg /= dataCount;
+
+    // 🔍 Log the full EEG data array and the average values to the console
+    console.log("EEG Data Array:", eegData);
+    console.log("Averages:", {
+        deltaAvg,
+        thetaAvg,
+        alphaAvg,
+        betaAvg,
+        gammaAvg
+    });
+
+    // Send only the averages and answer to the backend
+    fetch('http://localhost:8080/api/eeg/submitData', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            delta: deltaAvg,
+            theta: thetaAvg,
+            alpha: alphaAvg,
+            beta: betaAvg,
+            gamma: gammaAvg,
+            answer: answer
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Test data submitted successfully!');
+        // window.location.href = "/thank-you";
+    })
+    .catch((error) => {
+        console.error('Error submitting data:', error);
+        alert('An error occurred while submitting the test data.');
+    });
+}
+
+
+        // Assuming data collection happens in an interval, here is an example of how you would handle that.
+        // Collect EEG data (simulated with a mock function)
+        let dataCollectionInterval = setInterval(function() {
+            const eeg = {
+                delta: Math.random() * 100,
+                theta: Math.random() * 100,
+                alpha: Math.random() * 100,
+                beta: Math.random() * 100,
+                gamma: Math.random() * 100
+            };
+            eegData.push(eeg); // Store EEG data
+        }, 1000); // Collect every second (you can adjust this interval as needed)
+    </script>
+</body>
+</html>

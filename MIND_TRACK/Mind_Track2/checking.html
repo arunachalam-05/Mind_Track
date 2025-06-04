@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MindTrack EEG Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+      body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: #2d3436;
+        color: #fff;
+      }
+    
+      section {
+        padding: 40px;
+      }
+    
+      #instructions {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+    
+      .left,
+      .right {
+        flex: 1;
+        min-width: 300px;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 340px; /* chart and instructions height */
+      }
+    
+      .instruction-box {
+        background-color: #34495e;
+        padding: 15px 25px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+    
+      h2 {
+        color: #fdcb6e;
+        margin-bottom: 15px;
+      }
+    
+     canvas {
+  width: 100%;
+  height: 500px; /* Increased height */
+  max-width: 1000px; /* Optional: sets a maximum width */
+  border: 2px solid yellow;
+  border-radius: 10px;
+  background-color: rgb(238, 233, 233);
+}
+
+      .btn {
+        padding: 12px 28px;
+        font-size: 18px;
+        background: linear-gradient(to right, #fdcb6e, #e17055);
+        color: #2d3436;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+    
+      #puzzleSection {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px 60px; /* Reduced top padding to lift it up */
+        margin-top: -40px; /* Lifts the section slightly higher */
+      }
+    
+      #puzzleSection h2 {
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+    
+      #puzzleSection img[alt="Cube Puzzle"] {
+        width: 400px;
+        margin: 20px 0;
+      }
+    
+      .options {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+    
+      .option img {
+        width: 150px;
+        height: 150px;
+        border-radius: 12px;
+        border: 6px solid transparent;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      
+      .question2 .option {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: inline-block;
+  width: 60px;
+}
+
+.question2 .option.selected {
+  background-color: #ffa726;
+  color: #fff;
+  border: 2px solid #f57c00;
+  transform: scale(1.05);
+}
+   
+      .option img:hover {
+        transform: scale(1.05);
+      }
+    
+      .option.selected img {
+        border-color: #00cec9;
+      }
+
+        #profileBtn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: hsl(64, 88%, 46%); /* Customize button color */
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+  }
+
+  #historyBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: hsl(64, 88%, 46%); /* Customize button color */
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+  }
+      
+    </style>  
+  </head>
+  <body>
+
+
+   <div id="timerDisplay" style="display: none; position: fixed; top: 20px; right: 20px; font-size: 24px; background: #fdcb6e; color: #2d3436; padding: 10px 20px; border-radius: 8px;">
+  Time Left: <span id="timer">150</span>s
+</div>
+
+
+<button id="profileBtn" class="btn" onclick="window.open('profile.html', '_blank')">Profile</button>
+
+<!-- History Button -->
+<button id="historyBtn" class="btn" onclick="window.open('history.html', '_blank')">History</button>
+
+
+  <!-- Section 1: Instructions + EEG -->
+  <section id="instructions">
+    <div class="left">
+      <h2>Live EEG Bands</h2>
+      <canvas id="eegChart"></canvas>
+    </div>
+    <div class="right">
+      <h2>🚀 Welcome to MindTrack!</h2>
+      <div class="instruction-box">🧠 Relax and sit comfortably before starting.</div>
+      <div class="instruction-box">🧠 Focus your attention fully during the test.</div>
+      <div class="instruction-box">🧠 Avoid any distractions (mobile, noise).</div>
+      <div class="instruction-box">🧠 Total time to complete the test is 30s.</div>
+      <div class="instruction-box">🧠 Ready? Click Start when you are fully prepared!</div>
+      <button class="btn" id="startBtn">Start Test</button>
+    </div>
+  </section>
+
+  <!-- Section 2: Puzzle (Bottom Section) -->
+  <section id="puzzleSection">
+    <h2>🧩 Select the Correct Cube to Complete the pattern</h2>
+    <img src="question.png" alt="Cube Puzzle" />
+    <div class="options">
+      <div class="option" onclick="selectOption('A', this)"><img src="optionA.png" /></div>
+      <div class="option" onclick="selectOption('B', this)"><img src="optionB.png" /></div>
+      <div class="option" onclick="selectOption('C', this)"><img src="optionC.png" /></div>
+      <div class="option" onclick="selectOption('D', this)"><img src="optionD.png" /></div>
+      <div class="option" onclick="selectOption('E', this)"><img src="optionE.png" /></div>
+      <div class="option" onclick="selectOption('F', this)"><img src="optionF.png" /></div>
+    </div>
+    
+    <button class="btn" onclick="showSecondQuestion()">Next Question</button>
+
+  </section>
+  <!-- Section 3: Second Question -->
+  <section id="secondQuestion" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px;">
+  <h2>🧠 What number should replace the question mark?</h2>
+  <img src="9box_question.png" alt="9 Box Puzzle" style="max-width: 700px; width: 100%; margin: 30px 0; border-radius: 10px;" />
+  
+  <div class="question2">
+  <div class="option" onclick="selectOption('A', this)">A</div>
+  <div class="option" onclick="selectOption('B', this)">B</div>
+  <div class="option" onclick="selectOption('C', this)">C</div>
+  <div class="option" onclick="selectOption('D', this)">D</div>
+  </div>
+
+  <button class="btn" onclick="showThirdQuestion()">Next Question</button>
+  
+  </section>
+  <!-- Section 4: Third Question -->
+<section id="thirdQuestion" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px;">
+  <h2>🧠 Which letter completes the sequence?</h2>
+  <img src="letter_sequence.png" alt="Letter Sequence Puzzle" style="max-width: 700px; width: 100%; margin: 30px 0; border-radius: 10px;" />
+  
+  <div class="question2">
+    <div class="option" onclick="selectOption('A', this)">A</div>
+    <div class="option" onclick="selectOption('B', this)">B</div>
+    <div class="option" onclick="selectOption('C', this)">C</div>
+    <div class="option" onclick="selectOption('D', this)">D</div>
+    <div class="option" onclick="selectOption('E', this)">E</div>
+    <div class="option" onclick="selectOption('F', this)">F</div>
+  </div>
+
+  <button class="btn" onclick="showFourthQuestion()">Next Question</button>
+
+</section>
+<!-- Section 5: Fourth Question -->
+<section id="fourthQuestion" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px;">
+  <h2>🔺 How many triangles are in the picture?</h2>
+  <img src="triangles_question.jpg" alt="How many triangles" style="max-width: 700px; width: 100%; margin: 30px 0; border-radius: 10px;" />
+
+  <div class="question2">
+    <div class="option" onclick="selectOption('A', this)">A</div>
+    <div class="option" onclick="selectOption('B', this)">B</div>
+    <div class="option" onclick="selectOption('C', this)">C</div>
+    <div class="option" onclick="selectOption('D', this)">D</div>
+  </div>
+
+  <button class="btn" onclick="showFifthQuestion()">Next Question</button>
+
+</section>
+<!-- Section 6: Fifth Question -->
+<section id="fifthQuestion" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 250px 100px;">
+  <h2 id="question5" style="text-align: center; font-size: 28px;">🧠 John, twelve years old, is three times as old as his brother. How old will John be when he is twice as old as his brother?</h2>
+
+
+  <div class="question2">
+    <div class="option" onclick="selectOption('A', this)">15</div>
+    <div class="option" onclick="selectOption('B', this)">16</div>
+    <div class="option" onclick="selectOption('C', this)">18</div>
+    <div class="option" onclick="selectOption('D', this)">20</div>
+    <div class="option" onclick="selectOption('E', this)">21</div>
+  </div>
+
+  <button class="btn" onclick="submitAll()">Submit Test</button>
+</section>
+ 
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // const socket = new WebSocket("ws://192.168.239.203:81");
+    const socket = new WebSocket("ws://192.168.200.203:81/");
+
+    const labels = [];
+    const maxPoints = 20;
+    let collecting = false;
+    let timeLeft = 150;
+    let currentQuestion = 1;
+    let timerInterval;
+    const answers = {};
+    const correctAnswers = {1: 'B', 2: 'B', 3: 'C', 4: 'B', 5: 'B'};
+
+    const deltaArray = [], thetaArray = [], alphaArray = [], betaArray = [], gammaArray = [];
+
+    const timerElement = document.getElementById("timer");
+
+    const chart = new Chart(document.getElementById("eegChart"), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Delta', borderColor: 'blue', data: [], fill: false },
+          { label: 'Theta', borderColor: 'purple', data: [], fill: false },
+          { label: 'Alpha', borderColor: 'green', data: [], fill: false },
+          { label: 'Beta', borderColor: 'orange', data: [], fill: false },
+          { label: 'Gamma', borderColor: 'red', data: [], fill: false }
+        ]
+      },
+     options: {
+  responsive: false, // Add this to disable auto-resizing
+  animation: false,
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: 'Time (s)' // Adds x-axis label
+      }
+    },
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'EEG (µV)' // Adds y-axis label
+      }
+    }
+  }
+}
+
+
+    });
+
+    socket.onmessage = function(event) {
+      const eeg = JSON.parse(event.data);
+      if (labels.length >= maxPoints) {
+        labels.shift();
+        chart.data.datasets.forEach(ds => ds.data.shift());
+      }
+
+      const now = new Date();
+      const timeLabel = now.toLocaleTimeString(); // e.g., "14:23:45"
+      labels.push(timeLabel);
+
+      chart.data.datasets[0].data.push(eeg.delta);
+      chart.data.datasets[1].data.push(eeg.theta);
+      chart.data.datasets[2].data.push(eeg.alpha);
+      chart.data.datasets[3].data.push(eeg.beta);
+      chart.data.datasets[4].data.push(eeg.gamma);
+      chart.update();
+
+      if (collecting) {
+        deltaArray.push(eeg.delta);
+        thetaArray.push(eeg.theta);
+        alphaArray.push(eeg.alpha);
+        betaArray.push(eeg.beta);
+        gammaArray.push(eeg.gamma);
+      }
+    };
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      collecting = true;
+      timeLeft = 150;
+      timerElement.textContent = timeLeft;
+
+      deltaArray.length = thetaArray.length = alphaArray.length = betaArray.length = gammaArray.length = 0;
+
+      document.getElementById("timerDisplay").style.display = "block";
+
+      document.getElementById("puzzleSection").style.display = "flex";
+      document.getElementById("puzzleSection").scrollIntoView({ behavior: "smooth" });
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          timerElement.textContent = timeLeft;
+        } else {
+          clearInterval(timerInterval);
+          submitAll();
+        }
+      }, 1000);
+
+      setTimeout(() => {
+        collecting = false;
+      }, 30000);
+    });
+
+    function selectOption(optionValue, element) {
+      document.querySelectorAll(`#question${currentQuestion} .option`).forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      answers[currentQuestion] = optionValue;
+    }
+
+    function average(arr) {
+      return arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
+    }
+
+    function showNextQuestion(nextId) {
+      if (!answers[currentQuestion]) {
+        alert("❗ Please select an option to continue.");
+        return;
+      }
+      currentQuestion++;
+      document.getElementById(nextId).style.display = "flex";
+      document.getElementById(nextId).scrollIntoView({ behavior: "smooth" });
+    }
+
+    function submitAll() {
+      if (!answers[currentQuestion]) {
+        alert("❗ Please select an option to continue.");
+        return;
+      }
+
+      clearInterval(timerInterval);
+
+      let correct = 0;
+      for (let i = 1; i <= 5; i++) {
+        if (answers[i] === correctAnswers[i]) correct++;
+      }
+
+      const answer = correct * 20;
+      const timeTaken = 150 - timeLeft;
+
+      const data = {
+  userId: sessionStorage.getItem("userId") || "123",
+  delta: average(deltaArray),
+  theta: average(thetaArray),
+  alpha: average(alphaArray),
+  beta: average(betaArray),
+  gamma: average(gammaArray),
+  answer,
+  timeTaken
+};
+
+
+
+fetch('http://localhost:8080/api/eeg/submitData', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data)
+})
+.then(res => {
+  if (res.ok) {
+    alert("✅ Test Submitted Successfully!");
+    window.open('successTest.html', '_blank');
+  } else {
+    alert("❌ Submission failed");
+  }
+})
+.catch(err => {
+  console.error("Fetch error:", err);
+  alert("❌ Submission failed");
+});
+
+  }
+
+    // Expose functions
+    window.selectOption = selectOption;
+    window.submitAll = submitAll;
+    window.showSecondQuestion = () => showNextQuestion("secondQuestion");
+    window.showThirdQuestion = () => showNextQuestion("thirdQuestion");
+    window.showFourthQuestion = () => showNextQuestion("fourthQuestion");
+    window.showFifthQuestion = () => showNextQuestion("fifthQuestion");
+  });
+</script>
+
+
+
+  </body>
+  </html>

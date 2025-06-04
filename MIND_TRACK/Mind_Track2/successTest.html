@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTrack - Success</title>
+    <style>
+        body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    color: #ffffffcc;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    animation: pop 1s ease forwards;
+    color: #00ffd5;
+    text-shadow: 0 0 15px rgba(0, 255, 213, 0.6);
+}
+
+p {
+    font-size: 1.3rem;
+    color: #eeeeee;
+}
+
+.result-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    width: 90%;
+    max-width: 1100px;
+    margin-top: 40px;
+}
+
+.results-left, .ai-suggestion {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    padding: 25px 30px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+}
+
+.results-left:hover,
+.ai-suggestion:hover {
+    transform: scale(1.03);
+}
+
+.results-left {
+    flex: 1 1 60%;
+    text-align: left;
+}
+
+.results-left p {
+    font-size: 1.4rem;
+    margin: 18px 0;
+    border-left: 4px solid #00ffd5;
+    padding-left: 12px;
+    color: #ffffff;
+}
+
+.results-left span {
+    font-weight: 600;
+    font-size: 1.7rem;
+    color: #ffea00;
+    text-shadow: 0 0 8px #ffea00aa;
+}
+
+.ai-suggestion {
+    flex: 1 1 35%;
+    text-align: left;
+}
+
+.ai-suggestion h3 {
+    font-size: 2rem;
+    margin-bottom: 18px;
+    color: #ff4081;
+    text-shadow: 0 0 10px #ff4081aa;
+}
+
+.ai-suggestion p {
+    font-size: 1.3rem;
+    color: #ffffffdd;
+    line-height: 1.7;
+    padding-left: 10px;
+    border-left: 3px solid #ff4081;
+}
+
+@keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+
+    </style>
+</head>
+<body>
+
+<h1>🎉 Test Completed Successfully! 🎉</h1>
+<p>Thank you for participating in the MindTrack Brain Challenge!</p>
+
+<!-- Feedback Button -->
+<button id="feedbackBtn" style="margin-top: 40px; padding: 10px 20px; font-size: 1rem; background-color: #00ffd5; border: none; border-radius: 8px; color: #000; cursor: pointer;">
+    Give Feedback
+</button>
+
+<!-- Feedback Form (Initially Hidden) -->
+<div id="feedbackForm" style="display: none; margin-top: 30px; background-color: rgba(255,255,255,0.05); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); width: 80%; max-width: 700px;">
+    <h2 style="color: #ffea00;">We’d love your feedback!</h2>
+    
+    <form id="feedback">
+        <p>1. How easy was it to understand the test?</p>
+        <input type="range" min="1" max="5" name="q1" required>
+
+        <p>2. How satisfied are you with the AI suggestion?</p>
+        <input type="range" min="1" max="5" name="q2" required>
+
+        <p>3. Was the test duration comfortable?</p>
+        <input type="range" min="1" max="5" name="q3" required>
+
+        <p>4. How likely are you to recommend MindTrack?</p>
+        <input type="range" min="1" max="5" name="q4" required>
+
+        <p>5. Overall experience?</p>
+        <input type="range" min="1" max="5" name="q5" required>
+
+        <br><br>
+        <button type="submit" style="padding: 10px 20px; font-size: 1rem; background-color: #ff4081; border: none; border-radius: 8px; color: #fff; cursor: pointer;">Submit Feedback</button>
+    </form>
+</div>
+
+
+<div class="result-container">
+    <div class="results-left">
+        <p>Cognitive Load: <span id="cognitiveLoad"></span></p>
+        <p>Stress and Relaxation Level: <span id="stressRelaxation"></span></p>
+        <p>Focus & Attention Level: <span id="focusAttention"></span></p>
+        <p>Memory & Retention Score: <span id="memoryRetention"></span></p>
+        <p>Mental Fatigue Index: <span id="mentalFatigue"></span></p>
+    </div>
+
+    <div class="ai-suggestion">
+        <h3>AI Suggestion</h3>
+        <p id="suggestion"></p>
+    </div>
+</div>
+
+<script>
+    // Fetch the user ID from sessionStorage
+    const userId = sessionStorage.getItem('userId');
+
+
+    document.getElementById('feedbackBtn').addEventListener('click', () => {
+    document.getElementById('feedbackForm').style.display = 'block';
+    document.getElementById('feedbackBtn').style.display = 'none';
+});
+
+document.getElementById('feedback').addEventListener('submit', function (e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const feedbackData = {
+        userId: userId,
+        q1: formData.get('q1'),
+        q2: formData.get('q2'),
+        q3: formData.get('q3'),
+        q4: formData.get('q4'),
+        q5: formData.get('q5')
+    };
+
+    console.log("Feedback Submitted:", feedbackData);
+
+    // Optional: send to backend
+    fetch('http://localhost:8080/api/feedback/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Thank you for your feedback!");
+            document.getElementById('feedbackForm').style.display = 'none';
+        } else {
+            alert("Error submitting feedback.");
+        }
+    })
+    .catch(error => {
+        console.error("Feedback submission failed:", error);
+        alert("Failed to submit feedback.");
+    });
+});
+
+
+    // Check if the userId exists and log it to the console
+    if (!userId) {
+        alert('User ID not found!');
+        window.location.href = "checking.html";  // Redirect to test page if userId is missing
+    } else {
+        console.log("User ID from sessionStorage:", userId);
+        // Fetch the EEG data for the user from the backend
+        fetch(`http://localhost:8080/api/eeg/userResult/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Received EEG data:", data);
+                // Populate the success page with the retrieved EEG data
+                document.getElementById('cognitiveLoad').textContent = data.cognitiveLoad ? `${data.cognitiveLoad}%` : 'N/A';
+                document.getElementById('stressRelaxation').textContent = data.stressRelaxation ? `${data.stressRelaxation}%` : 'N/A';
+            document.getElementById('focusAttention').textContent = data.focusAttention ? `${data.focusAttention}%` : 'N/A';
+            document.getElementById('memoryRetention').textContent = data.memoryRetention ? `${data.memoryRetention}%` : 'N/A';
+            document.getElementById('mentalFatigue').textContent = data.mentalFatigue ? `${data.mentalFatigue}%` : 'N/A';
+            document.getElementById('suggestion').textContent = data.suggestion || 'N/A';
+            })
+            .catch(error => {
+                console.error("Error fetching EEG data:", error);
+                alert("Failed to load data. Please try again later.");
+            });
+    }
+</script>
+
+</body>
+</html>
